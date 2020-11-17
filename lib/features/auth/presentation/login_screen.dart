@@ -1,20 +1,26 @@
+import 'dart:convert';
+
 import 'package:fastidemo/commons/mixins/progress_overlay_mixin.dart';
 import 'package:fastidemo/commons/mixins/snacks_mixin.dart';
 import 'package:fastidemo/config/colors.dart';
+import 'package:fastidemo/config/strings.dart';
+import 'package:fastidemo/features/auth/models/login_response.dart';
 import 'package:fastidemo/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:fastidemo/features/signup/presentation/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SnacksMixin, ProgressOverlayMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SnacksMixin, ProgressOverlayMixin {
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _namesController = TextEditingController();
-  TextEditingController _surnamesController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     Size _size = MediaQuery.of(context).size;
@@ -73,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> with SnacksMixin, ProgressOve
                             height: 16,
                           ),
                           TextField(
+                            controller: _phoneController,
                             decoration: InputDecoration(
                               labelText: 'Celular',
                               focusedBorder: OutlineInputBorder(
@@ -91,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> with SnacksMixin, ProgressOve
                           ),
                           TextField(
                             obscureText: true,
+                            controller: _passwordController,
                             decoration: InputDecoration(
                               labelText: 'Contraseña',
                               focusedBorder: OutlineInputBorder(
@@ -123,13 +131,7 @@ class _LoginScreenState extends State<LoginScreen> with SnacksMixin, ProgressOve
                                           fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              onPressed: () {
-                                showProgress(context);
-                                Future.delayed(Duration(seconds: 2), () {
-                                  hideProgress();
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => DashboardScreen()));
-                                });
-                              },
+                              onPressed: validateFields,
                               shape: new RoundedRectangleBorder(
                                 borderRadius: new BorderRadius.circular(8.0),
                               ),
@@ -168,12 +170,33 @@ class _LoginScreenState extends State<LoginScreen> with SnacksMixin, ProgressOve
     );
   }
 
-  void validateFields() {
-    if (_phoneController.text.isEmpty ||
-        _namesController.text.isEmpty ||
-        _surnamesController.text.isEmpty) {
+  void validateFields() async {
+    if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
       showErrorSnack(
           context: context, message: 'Por favor, completa todos los campos.');
-    } else {}
+    } else {
+      showProgress(context);
+
+      var response = await http.post(
+        '${AppStrings.apiUsersUrl}/users/auth',
+        headers: {'Content-Type': AppStrings.JSON_MEDIA_TYPE},
+        body: json.encode({
+          'phoneNumber': _phoneController.text,
+          'password': _passwordController.text
+        }),
+      );
+
+      var loginResponse = LoginResponse.fromJson(json.decode(response.body));
+
+      if (loginResponse.status == 1) {
+        hideProgress();
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => DashboardScreen()));
+      } else {
+        hideProgress();
+        showErrorSnack(
+            context: context, message: 'Por favor, verifica tus credenciales');
+      }
+    }
   }
 }

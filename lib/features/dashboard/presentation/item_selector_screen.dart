@@ -11,7 +11,7 @@ class ItemSelectorScreen extends StatefulWidget {
 
 class _ItemSelectorScreenState extends State<ItemSelectorScreen>
     with ProgressOverlayMixin {
-  bool _showItems = false;
+  bool _showItems = true;
 
   bool bo1 = false;
   bool bo2 = false;
@@ -20,6 +20,8 @@ class _ItemSelectorScreenState extends State<ItemSelectorScreen>
   bool bo5 = false;
   bool bo6 = false;
   bool bo7 = false;
+
+  List<String> items = [];
 
   @override
   Widget build(BuildContext context) {
@@ -74,26 +76,47 @@ class _ItemSelectorScreenState extends State<ItemSelectorScreen>
                             onChanged: (val) {
                               setState(() {
                                 bo1 = val;
+                                if (val) {
+                                  items.add('Tarro de leche Gloria Azul');
+                                } else {
+                                  items.removeWhere((element) =>
+                                      element == 'Tarro de leche Gloria Azul');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 5f960d4'),
                             value: bo1,
-                            title: Text('Pan de molde Bimbo'),
+                            title: Text('Tarro de leche Gloria Azul'),
                           ),
                           CheckboxListTile(
                             onChanged: (val) {
                               setState(() {
                                 bo2 = val;
+                                if (val) {
+                                  items.add('Panetón D\'Onofrio');
+                                } else {
+                                  items.removeWhere((element) =>
+                                      element == 'Panetón D\'Onofrio');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 7256cc'),
                             value: bo2,
-                            title: Text('Pan para hamburguesa'),
+                            title: Text('Panetón D\'Onofrio'),
                           ),
                           CheckboxListTile(
                             onChanged: (val) {
                               setState(() {
                                 bo3 = val;
+                                if (val) {
+                                  items.add('Pan ciabatta');
+                                } else {
+                                  items.removeWhere(
+                                      (element) => element == 'Pan ciabatta');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 5d654c'),
                             value: bo3,
                             title: Text('Pan ciabatta'),
                           ),
@@ -101,37 +124,65 @@ class _ItemSelectorScreenState extends State<ItemSelectorScreen>
                             onChanged: (val) {
                               setState(() {
                                 bo4 = val;
+                                if (val) {
+                                  items.add('Panadol unidad');
+                                } else {
+                                  items.removeWhere(
+                                      (element) => element == 'Panadol unidad');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 960y41'),
                             value: bo4,
-                            title: Text('Paisana arroz extra'),
+                            title: Text('Panadol unidad'),
                           ),
                           CheckboxListTile(
                             onChanged: (val) {
                               setState(() {
                                 bo5 = val;
+                                if (val) {
+                                  items.add('Mantequilla de maní');
+                                } else {
+                                  items.removeWhere((element) =>
+                                      element == 'Mantequilla de maní');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 69765c'),
                             value: bo5,
-                            title: Text('Panadol pastilla'),
+                            title: Text('Mantequilla de maní'),
                           ),
                           CheckboxListTile(
                             onChanged: (val) {
                               setState(() {
                                 bo6 = val;
+                                if (val) {
+                                  items.add('Papa amarilla');
+                                } else {
+                                  items.removeWhere(
+                                      (element) => element == 'Papa amarilla');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 8f9077'),
                             value: bo6,
-                            title: Text('Paracetamol'),
+                            title: Text('Papa amarilla'),
                           ),
                           CheckboxListTile(
                             onChanged: (val) {
                               setState(() {
                                 bo7 = val;
+                                if (val) {
+                                  items.add('Aceite Primor');
+                                } else {
+                                  items.removeWhere(
+                                      (element) => element == 'Aceite Primor');
+                                }
                               });
                             },
+                            subtitle: Text('Cód. producto: 764b4d'),
                             value: bo7,
-                            title: Text('Pasas'),
+                            title: Text('Aceite Primor'),
                           ),
                         ],
                       ),
@@ -161,7 +212,13 @@ class _ItemSelectorScreenState extends State<ItemSelectorScreen>
                           showProgress(context);
                           Future.delayed(Duration(seconds: 2), () {
                             hideProgress();
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => MapScreen()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => MapScreen(
+                                  items: items,
+                                ),
+                              ),
+                            );
                           });
                         },
                         shape: new RoundedRectangleBorder(

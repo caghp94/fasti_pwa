@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:fastidemo/commons/mixins/progress_overlay_mixin.dart';
 import 'package:fastidemo/commons/mixins/snacks_mixin.dart';
 import 'package:fastidemo/config/colors.dart';
-import 'package:fastidemo/features/auth/presentation/login_screen.dart';
+import 'package:fastidemo/config/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -15,6 +18,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _namesController = TextEditingController();
   TextEditingController _surnamesController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,6 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               ),
               TextField(
                 obscureText: true,
+                controller: _passwordController,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
                   focusedBorder: OutlineInputBorder(
@@ -137,7 +142,7 @@ class _SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  void validateFields() {
+  void validateFields() async {
     if (_phoneController.text.isEmpty ||
         _namesController.text.isEmpty ||
         _surnamesController.text.isEmpty) {
@@ -145,10 +150,20 @@ class _SignUpScreenState extends State<SignUpScreen>
           context: context, message: 'Por favor, completa todos los campos.');
     } else {
       showProgress(context);
-      Future.delayed(Duration(seconds: 2), () {
-        hideProgress();
-        Navigator.of(context).pop();
-      });
+
+      var response = await http.post(
+        '${AppStrings.apiUsersUrl}/users',
+        headers: {'Content-Type': AppStrings.JSON_MEDIA_TYPE},
+        body: json.encode({
+          'phoneNumber': _phoneController.text,
+          'name': _namesController.text,
+          'surname': _surnamesController.text,
+          'password': _passwordController.text
+        }),
+      );
+
+      hideProgress();
+      Navigator.of(context).pop();
     }
   }
 }
